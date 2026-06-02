@@ -3,17 +3,19 @@ import {
   useAudioPlayer,
   useAudioPlayerStatus,
 } from "expo-audio";
-import { useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Pressable, View } from "react-native";
 
 import PatternedScreen from "@/components/PatternedScreen";
 import { ThemedText } from "@/components/themed-text";
+import { addFavoriteSong } from "@/storage/favoriteSongs";
 import { AUDIO_TRACKS } from "./PlayerScreen.const";
 import styles from "./PlayerScreen.styles";
 import { formatTime } from "./PlayerScreen.utils";
 
 export default function PlayerScreen() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const favoriteScale = useRef(new Animated.Value(1)).current;
   const currentTrack = AUDIO_TRACKS[currentTrackIndex];
   const player = useAudioPlayer(AUDIO_TRACKS[0].source, {
     updateInterval: 250,
@@ -62,6 +64,30 @@ export default function PlayerScreen() {
 
   const handleNext = () => {
     replaceTrack((currentTrackIndex + 1) % AUDIO_TRACKS.length);
+  };
+
+  const animateFavoriteButton = () => {
+    Animated.sequence([
+      Animated.timing(favoriteScale, {
+        toValue: 1.15,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(favoriteScale, {
+        toValue: 1,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleAddToFavourites = async () => {
+    animateFavoriteButton();
+
+    await addFavoriteSong({
+      title: currentTrack.title,
+      description: currentTrack.description,
+    });
   };
 
   return (
@@ -169,16 +195,21 @@ export default function PlayerScreen() {
             <View style={styles.stopIcon} />
           </Pressable>
 
-          <Pressable
-            accessibilityLabel="Add to favourites"
-            style={({ pressed }) => [
-              styles.button,
-              styles.secondaryButton,
-              pressed && styles.buttonPressed,
-            ]}
+          <Animated.View
+            style={{ transform: [{ scale: favoriteScale }] }}
           >
-            <ThemedText style={styles.heartIcon}>♥</ThemedText>
-          </Pressable>
+            <Pressable
+              accessibilityLabel="Add to favourites"
+              onPress={() => void handleAddToFavourites()}
+              style={({ pressed }) => [
+                styles.button,
+                styles.secondaryButton,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <ThemedText style={styles.heartIcon}>♥</ThemedText>
+            </Pressable>
+          </Animated.View>
         </View>
       </View>
     </PatternedScreen>

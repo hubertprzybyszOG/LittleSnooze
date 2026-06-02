@@ -25,6 +25,7 @@ export default function HomeScreen() {
           </Pressable>
 
           <Pressable
+            onPress={() => router.push("/favorites")}
             style={({ pressed }) => [
               styles.button,
               styles.secondaryButton,
