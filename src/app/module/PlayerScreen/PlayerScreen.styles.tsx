@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import { ButtonRadius, Colors, Fonts, MaxContentWidth, Spacing } from "@/constants/theme";
+import { Colors, Fonts, MaxContentWidth, Spacing } from "@/constants/theme";
 
 const styles = StyleSheet.create({
   container: {
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   content: {
     alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.four,
+    gap: Spacing.three,
   },
   topLeftDots: {
     top: -Spacing.six,
@@ -39,21 +39,66 @@ const styles = StyleSheet.create({
     lineHeight: 44,
     letterSpacing: 0.1,
   },
+  trackCard: {
+    alignItems: "center",
+    width: "100%",
+    maxWidth: 340,
+    borderWidth: 1,
+    borderColor: Colors.text,
+    borderRadius: 56,
+    backgroundColor: Colors.backgroundElement,
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.five,
+    gap: Spacing.three,
+  },
+  progressSection: {
+    width: "100%",
+    gap: Spacing.two,
+  },
+  progressTrack: {
+    width: "100%",
+    height: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: Colors.text,
+    borderRadius: 999,
+    backgroundColor: Colors.background,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: Colors.backgroundSelected,
+  },
+  timeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  timeText: {
+    fontFamily: Fonts.lato.bold,
+    fontSize: 12,
+    lineHeight: 16,
+  },
   buttonStack: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     width: "100%",
     maxWidth: 240,
-    gap: Spacing.two,
   },
   button: {
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 40,
-    borderRadius: ButtonRadius,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     borderWidth: 1,
     borderColor: Colors.text,
+  },
+  playButton: {
+    marginTop: Spacing.one,
+  },
+  primaryButton: {
     backgroundColor: Colors.backgroundSelected,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
   },
   secondaryButton: {
     backgroundColor: Colors.backgroundElement,
@@ -70,6 +115,40 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: Colors.text,
+  },
+  playIcon: {
+    width: 0,
+    height: 0,
+    marginLeft: Spacing.one,
+    borderTopWidth: 12,
+    borderBottomWidth: 12,
+    borderLeftWidth: 19,
+    borderTopColor: "transparent",
+    borderBottomColor: "transparent",
+    borderLeftColor: Colors.textOnSelected,
+  },
+  pauseIcon: {
+    flexDirection: "row",
+    gap: Spacing.two,
+  },
+  pauseBar: {
+    width: 6,
+    height: 24,
+    borderRadius: 4,
+    backgroundColor: Colors.text,
+  },
+  stopIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    backgroundColor: Colors.text,
+  },
+  heartIcon: {
+    color: Colors.text,
+    fontFamily: Fonts.lato.bold,
+    fontSize: 26,
+    lineHeight: 30,
+    textAlign: "center",
   },
   favoriteHeart: {
     color: Colors.text,
