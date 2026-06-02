@@ -1,28 +1,29 @@
-import { useEffect } from "react";
+import {
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+} from "expo-audio";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
-import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import DotPattern from "@/app/components/DotPattern";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { AUDIO_TRACKS } from "./PlayerScreen.const";
 import styles from "./PlayerScreen.styles";
-
-const calmNoiseSource = require("@/assets/audio/calm-noise.wav");
-
-function formatTime(seconds: number) {
-  const safeSeconds = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
-  const minutes = Math.floor(safeSeconds / 60);
-  const remainingSeconds = Math.floor(safeSeconds % 60);
-
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
+import { formatTime } from "./PlayerScreen.utils";
 
 export default function PlayerScreen() {
-  const player = useAudioPlayer(calmNoiseSource, { updateInterval: 250 });
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const currentTrack = AUDIO_TRACKS[currentTrackIndex];
+  const player = useAudioPlayer(AUDIO_TRACKS[0].source, {
+    updateInterval: 250,
+  });
   const status = useAudioPlayerStatus(player);
   const duration = status.duration || 0;
-  const progress = duration > 0 ? Math.min(status.currentTime / duration, 1) : 0;
+  const progress =
+    duration > 0 ? Math.min(status.currentTime / duration, 1) : 0;
 
   useEffect(() => {
     void setAudioModeAsync({ playsInSilentMode: true });
@@ -43,6 +44,28 @@ export default function PlayerScreen() {
     void player.seekTo(0);
   };
 
+  const replaceTrack = (nextTrackIndex: number) => {
+    const wasPlaying = status.playing;
+
+    setCurrentTrackIndex(nextTrackIndex);
+    player.replace(AUDIO_TRACKS[nextTrackIndex].source);
+    player.loop = true;
+
+    if (wasPlaying) {
+      player.play();
+    }
+  };
+
+  const handlePrevious = () => {
+    replaceTrack(
+      (currentTrackIndex - 1 + AUDIO_TRACKS.length) % AUDIO_TRACKS.length
+    );
+  };
+
+  const handleNext = () => {
+    replaceTrack((currentTrackIndex + 1) % AUDIO_TRACKS.length);
+  };
+
   return (
     <ThemedView style={styles.container}>
       <DotPattern style={styles.topLeftDots} dotKeyPrefix="top-left" />
@@ -52,35 +75,87 @@ export default function PlayerScreen() {
         <View style={styles.content}>
           <View style={styles.trackCard}>
             <ThemedText type="subtitle" style={styles.title}>
-              Calm Noise
+              {currentTrack.title}
             </ThemedText>
-            <ThemedText style={styles.description}>A soft generated noise loop for sleepy moments.</ThemedText>
+            <ThemedText style={styles.description}>
+              {currentTrack.description}
+            </ThemedText>
 
             <View style={styles.progressSection}>
-              <View style={styles.progressTrack} accessibilityRole="progressbar">
-                <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+              <View
+                style={styles.progressTrack}
+                accessibilityRole="progressbar"
+              >
+                <View
+                  style={[styles.progressFill, { width: `${progress * 100}%` }]}
+                />
               </View>
 
               <View style={styles.timeRow}>
-                <ThemedText style={styles.timeText}>{formatTime(status.currentTime)}</ThemedText>
-                <ThemedText style={styles.timeText}>{formatTime(duration)}</ThemedText>
+                <ThemedText style={styles.timeText}>
+                  {formatTime(status.currentTime)}
+                </ThemedText>
+                <ThemedText style={styles.timeText}>
+                  {formatTime(duration)}
+                </ThemedText>
               </View>
             </View>
 
-            <Pressable
-              accessibilityLabel="Play"
-              onPress={handlePlay}
-              style={({ pressed }) => [styles.button, styles.playButton, styles.primaryButton, pressed && styles.buttonPressed]}
-            >
-              <View style={styles.playIcon} />
-            </Pressable>
+            <View style={styles.cardControls}>
+              <Pressable
+                accessibilityLabel="Previous noise"
+                onPress={handlePrevious}
+                style={({ pressed }) => [
+                  styles.button,
+                  styles.secondaryButton,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <View style={styles.previousIcon}>
+                  <View style={styles.skipBar} />
+                  <View style={styles.previousTriangle} />
+                </View>
+              </Pressable>
+
+              <Pressable
+                accessibilityLabel="Play"
+                onPress={handlePlay}
+                style={({ pressed }) => [
+                  styles.button,
+                  styles.playButton,
+                  styles.primaryButton,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <View style={styles.playIcon} />
+              </Pressable>
+
+              <Pressable
+                accessibilityLabel="Next noise"
+                onPress={handleNext}
+                style={({ pressed }) => [
+                  styles.button,
+                  styles.secondaryButton,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <View style={styles.nextIcon}>
+                  <View style={styles.nextTriangle} />
+                  <View style={styles.skipBar} />
+                </View>
+              </Pressable>
+            </View>
           </View>
 
           <View style={styles.buttonStack}>
             <Pressable
               accessibilityLabel="Pause"
               onPress={handlePause}
-              style={({ pressed }) => [styles.button, styles.secondaryButton, pressed && styles.buttonPressed]}
+              style={({ pressed }) => [
+                styles.button,
+                styles.secondaryButton,
+                pressed && styles.buttonPressed,
+              ]}
             >
               <View style={styles.pauseIcon}>
                 <View style={styles.pauseBar} />
@@ -91,14 +166,22 @@ export default function PlayerScreen() {
             <Pressable
               accessibilityLabel="Stop"
               onPress={handleStop}
-              style={({ pressed }) => [styles.button, styles.secondaryButton, pressed && styles.buttonPressed]}
+              style={({ pressed }) => [
+                styles.button,
+                styles.secondaryButton,
+                pressed && styles.buttonPressed,
+              ]}
             >
               <View style={styles.stopIcon} />
             </Pressable>
 
             <Pressable
               accessibilityLabel="Add to favourites"
-              style={({ pressed }) => [styles.button, styles.secondaryButton, pressed && styles.buttonPressed]}
+              style={({ pressed }) => [
+                styles.button,
+                styles.secondaryButton,
+                pressed && styles.buttonPressed,
+              ]}
             >
               <ThemedText style={styles.heartIcon}>♥</ThemedText>
             </Pressable>
