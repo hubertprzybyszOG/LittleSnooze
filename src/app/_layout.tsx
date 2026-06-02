@@ -1,9 +1,8 @@
 import { useFonts } from "expo-font";
 import { Fredoka_600SemiBold } from "@expo-google-fonts/fredoka";
-import { DefaultTheme, ThemeProvider } from "expo-router";
+import { DefaultTheme, Slot, ThemeProvider } from "expo-router";
 
 import { Colors } from "@/constants/theme";
-import WelcomeScreen from "./module/WelcomeScreen";
 
 const eInkNavigationTheme = {
   ...DefaultTheme,
@@ -39,7 +38,7 @@ export default function TabLayout() {
 
   return (
     <ThemeProvider value={eInkNavigationTheme}>
-      <WelcomeScreen />
+      <Slot />
     </ThemeProvider>
   );
 }
