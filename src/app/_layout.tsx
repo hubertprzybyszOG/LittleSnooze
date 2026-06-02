@@ -1,8 +1,9 @@
 import { useFonts } from "expo-font";
+import { Fredoka_600SemiBold } from "@expo-google-fonts/fredoka";
 import { DefaultTheme, ThemeProvider } from "expo-router";
 
 import { Colors } from "@/constants/theme";
-import HomeScreen from ".";
+import WelcomeScreen from "./module/WelcomeScreen";
 
 const eInkNavigationTheme = {
   ...DefaultTheme,
@@ -29,6 +30,7 @@ export default function TabLayout() {
     "Lato-BoldItalic": require("@/assets/fonts/Lato-BoldItalic.ttf"),
     "Lato-Black": require("@/assets/fonts/Lato-Black.ttf"),
     "Lato-BlackItalic": require("@/assets/fonts/Lato-BlackItalic.ttf"),
+    "Fredoka-SemiBold": Fredoka_600SemiBold,
   });
 
   if (!loaded && !error) {
@@ -37,7 +39,7 @@ export default function TabLayout() {
 
   return (
     <ThemeProvider value={eInkNavigationTheme}>
-      <HomeScreen />
+      <WelcomeScreen />
     </ThemeProvider>
   );
 }

@@ -18,6 +18,7 @@ export const Colors = {
 export type ThemeColor = keyof typeof Colors;
 
 export const Fonts = {
+  logo: 'Fredoka-SemiBold',
   sans: 'Lato',
   serif: Platform.select({ ios: 'ui-serif', default: 'serif', web: 'var(--font-serif)' }),
   rounded: 'Lato',
