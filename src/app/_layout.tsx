@@ -1,6 +1,6 @@
-import { useFonts } from "expo-font";
 import { Fredoka_600SemiBold } from "@expo-google-fonts/fredoka";
-import { DefaultTheme, Slot, ThemeProvider } from "expo-router";
+import { useFonts } from "expo-font";
+import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
 
 import { Colors } from "@/constants/theme";
 
@@ -38,7 +38,11 @@ export default function TabLayout() {
 
   return (
     <ThemeProvider value={eInkNavigationTheme}>
-      <Slot />
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
+        <Stack.Screen name="player" options={{ headerShown: false }} />
+      </Stack>
     </ThemeProvider>
   );
 }

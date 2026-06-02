@@ -1,12 +1,12 @@
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 
 import DotPattern from "@/app/components/DotPattern";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { styles } from "./WelcomeScreen.styles";
+import styles from "./WelcomeScreen.styles";
 
 export default function WelcomeScreen() {
   const router = useRouter();
