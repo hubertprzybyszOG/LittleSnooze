@@ -1,35 +1,12 @@
 import { StyleSheet } from "react-native";
 
-import { Colors, Fonts, MaxContentWidth, Spacing } from "@/constants/theme";
+import { Colors, Fonts, Spacing } from "@/constants/theme";
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    overflow: "hidden",
-  },
-  safeArea: {
-    flex: 1,
-    alignSelf: "center",
-    justifyContent: "center",
-    width: "100%",
-    maxWidth: MaxContentWidth,
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.five,
-  },
   content: {
     alignItems: "center",
     justifyContent: "center",
     gap: Spacing.three,
-  },
-  topLeftDots: {
-    top: -Spacing.six,
-    left: -Spacing.six,
-  },
-  bottomRightDots: {
-    right: -Spacing.six,
-    bottom: -Spacing.six,
-    transform: [{ rotate: "180deg" }],
   },
   title: {
     maxWidth: 320,

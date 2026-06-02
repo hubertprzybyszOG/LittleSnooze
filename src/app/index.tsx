@@ -1,4 +1,4 @@
-import WelcomeScreen from "./module/WelcomeScreen";
+import WelcomeScreen from "./modules/WelcomeScreen";
 
 export default function HomeScreen() {
   return <WelcomeScreen />;
