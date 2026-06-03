@@ -3,7 +3,7 @@ import {
   useAudioPlayer,
   useAudioPlayerStatus,
 } from "expo-audio";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Pressable, View } from "react-native";
 
@@ -17,9 +17,11 @@ import { formatTime } from "./PlayerScreen.utils";
 const MAX_FAVORITE_SONGS = 2;
 
 export default function PlayerScreen() {
+  const { trackTitle } = useLocalSearchParams<{ trackTitle?: string }>();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [favoriteSongsCount, setFavoriteSongsCount] = useState(0);
   const favoriteScale = useRef(new Animated.Value(1)).current;
+  const lastRequestedTrackTitle = useRef<string | null>(null);
   const currentTrack = AUDIO_TRACKS[currentTrackIndex];
   const player = useAudioPlayer(AUDIO_TRACKS[0].source, {
     updateInterval: 250,
@@ -50,6 +52,26 @@ export default function PlayerScreen() {
       void loadFavoriteSongsCount();
     }, [loadFavoriteSongsCount])
   );
+
+  useEffect(() => {
+    if (!trackTitle || lastRequestedTrackTitle.current === trackTitle) {
+      return;
+    }
+
+    const requestedTrackIndex = AUDIO_TRACKS.findIndex(
+      (track) => track.title === trackTitle
+    );
+
+    if (requestedTrackIndex === -1) {
+      return;
+    }
+
+    lastRequestedTrackTitle.current = trackTitle;
+    setCurrentTrackIndex(requestedTrackIndex);
+    player.replace(AUDIO_TRACKS[requestedTrackIndex].source);
+    player.loop = true;
+    void player.seekTo(0);
+  }, [player, trackTitle]);
 
   const handlePlay = () => {
     player.play();

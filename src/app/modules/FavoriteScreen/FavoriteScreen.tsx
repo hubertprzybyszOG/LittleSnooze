@@ -1,4 +1,4 @@
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 
@@ -48,10 +48,19 @@ export default function FavoriteScreen() {
     }
   };
 
+  const handlePlaySong = (title: FavoriteSong["title"]) => {
+    router.push({
+      pathname: "/player",
+      params: { trackTitle: title },
+    });
+  };
+
   return (
     <PatternedScreen safeAreaStyle={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText style={styles.description}>Favorite 2 noises...</ThemedText>
+        <ThemedText style={styles.description}>
+          Your favorite 2 noises...
+        </ThemedText>
 
         {isLoading ? (
           <ThemedText style={styles.emptyText}>Loading favorites...</ThemedText>
@@ -67,7 +76,7 @@ export default function FavoriteScreen() {
               <View key={song.title} style={styles.songCard}>
                 <Pressable
                   accessibilityLabel={`Play ${song.title}`}
-                  onPress={() => undefined}
+                  onPress={() => handlePlaySong(song.title)}
                   style={({ pressed }) => [
                     styles.iconButton,
                     pressed && styles.buttonPressed,
