@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
     gap: Spacing.four,
   },
   title: {
-    maxWidth: 320,
+    alignSelf: "stretch",
     textAlign: "center",
     fontFamily: Fonts.logo,
     fontSize: 38,
@@ -17,8 +17,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
   },
   buttonStack: {
-    width: "100%",
-    maxWidth: 240,
+    alignSelf: "stretch",
     gap: Spacing.two,
   },
   button: {
@@ -58,7 +57,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   description: {
-    maxWidth: 260,
+    alignSelf: "stretch",
     marginTop: Spacing.one,
     textAlign: "center",
     fontSize: 14,

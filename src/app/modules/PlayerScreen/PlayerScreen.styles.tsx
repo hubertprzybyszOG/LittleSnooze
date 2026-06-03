@@ -6,10 +6,11 @@ const styles = StyleSheet.create({
   content: {
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "stretch",
     gap: Spacing.three,
   },
   title: {
-    maxWidth: 320,
+    alignSelf: "stretch",
     textAlign: "center",
     fontFamily: Fonts.logo,
     fontSize: 38,
@@ -18,8 +19,7 @@ const styles = StyleSheet.create({
   },
   trackCard: {
     alignItems: "center",
-    width: "100%",
-    maxWidth: 340,
+    alignSelf: "stretch",
     borderRadius: 56,
     backgroundColor: Colors.backgroundElement,
     paddingHorizontal: Spacing.four,
@@ -62,15 +62,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 240,
+    alignSelf: "stretch",
   },
   buttonStack: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "100%",
-    maxWidth: 240,
+    alignSelf: "stretch",
   },
   button: {
     alignItems: "center",
@@ -196,7 +194,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   description: {
-    maxWidth: 260,
+    alignSelf: "stretch",
     marginTop: Spacing.one,
     textAlign: "center",
     fontSize: 14,
