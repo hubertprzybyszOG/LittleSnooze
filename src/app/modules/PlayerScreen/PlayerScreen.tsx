@@ -4,7 +4,7 @@ import {
   useAudioPlayerStatus,
 } from "expo-audio";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Pressable, View } from "react-native";
 
 import PatternedScreen from "@/components/PatternedScreen";
@@ -20,7 +20,7 @@ export default function PlayerScreen() {
   const { trackTitle } = useLocalSearchParams<{ trackTitle?: string }>();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [favoriteSongsCount, setFavoriteSongsCount] = useState(0);
-  const favoriteScale = useRef(new Animated.Value(1)).current;
+  const favoriteScale = useMemo(() => new Animated.Value(1), []);
   const lastRequestedTrackTitle = useRef<string | null>(null);
   const currentTrack = AUDIO_TRACKS[currentTrackIndex];
   const player = useAudioPlayer(AUDIO_TRACKS[0].source, {
@@ -34,18 +34,22 @@ export default function PlayerScreen() {
 
   useEffect(() => {
     void setAudioModeAsync({ playsInSilentMode: true });
-    player.loop = true;
-    player.volume = 0.7;
-  }, [player]);
+  }, []);
+
+  useEffect(() => {
+    if (!status.didJustFinish) {
+      return;
+    }
+
+    void player.seekTo(0).then(() => {
+      player.play();
+    });
+  }, [player, status.didJustFinish]);
 
   const loadFavoriteSongsCount = useCallback(async () => {
     const favoriteSongs = await getFavoriteSongs();
     setFavoriteSongsCount(favoriteSongs.length);
   }, []);
-
-  useEffect(() => {
-    void loadFavoriteSongsCount();
-  }, [loadFavoriteSongsCount]);
 
   useFocusEffect(
     useCallback(() => {
@@ -53,25 +57,26 @@ export default function PlayerScreen() {
     }, [loadFavoriteSongsCount])
   );
 
-  useEffect(() => {
-    if (!trackTitle || lastRequestedTrackTitle.current === trackTitle) {
-      return;
-    }
+  useFocusEffect(
+    useCallback(() => {
+      if (!trackTitle || lastRequestedTrackTitle.current === trackTitle) {
+        return;
+      }
 
-    const requestedTrackIndex = AUDIO_TRACKS.findIndex(
-      (track) => track.title === trackTitle
-    );
+      const requestedTrackIndex = AUDIO_TRACKS.findIndex(
+        (track) => track.title === trackTitle
+      );
 
-    if (requestedTrackIndex === -1) {
-      return;
-    }
+      if (requestedTrackIndex === -1) {
+        return;
+      }
 
-    lastRequestedTrackTitle.current = trackTitle;
-    setCurrentTrackIndex(requestedTrackIndex);
-    player.replace(AUDIO_TRACKS[requestedTrackIndex].source);
-    player.loop = true;
-    void player.seekTo(0);
-  }, [player, trackTitle]);
+      lastRequestedTrackTitle.current = trackTitle;
+      setCurrentTrackIndex(requestedTrackIndex);
+      player.replace(AUDIO_TRACKS[requestedTrackIndex].source);
+      void player.seekTo(0);
+    }, [player, trackTitle])
+  );
 
   const handlePlay = () => {
     player.play();
@@ -91,7 +96,6 @@ export default function PlayerScreen() {
 
     setCurrentTrackIndex(nextTrackIndex);
     player.replace(AUDIO_TRACKS[nextTrackIndex].source);
-    player.loop = true;
 
     if (wasPlaying) {
       player.play();
@@ -149,10 +153,7 @@ export default function PlayerScreen() {
           </ThemedText>
 
           <View style={styles.progressSection}>
-            <View
-              style={styles.progressTrack}
-              accessibilityRole="progressbar"
-            >
+            <View style={styles.progressTrack} accessibilityRole="progressbar">
               <View
                 style={[styles.progressFill, { width: `${progress * 100}%` }]}
               />
@@ -242,9 +243,7 @@ export default function PlayerScreen() {
             <View style={styles.stopIcon} />
           </Pressable>
 
-          <Animated.View
-            style={{ transform: [{ scale: favoriteScale }] }}
-          >
+          <Animated.View style={{ transform: [{ scale: favoriteScale }] }}>
             <Pressable
               accessibilityLabel="Add to favourites"
               accessibilityState={{ disabled: isFavoriteLimitReached }}
