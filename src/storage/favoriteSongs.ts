@@ -72,3 +72,15 @@ export const addFavoriteSong = async (
 
   return songs;
 };
+
+export const removeFavoriteSong = async (title: FavoriteSong["title"]) => {
+  const storedSongs = await getFavoriteSongs();
+  const songs = storedSongs.filter((song) => song.title !== title);
+
+  await Storage.setItem(
+    FAVORITE_SONGS_STORAGE_KEY,
+    JSON.stringify({ songs })
+  );
+
+  return songs;
+};

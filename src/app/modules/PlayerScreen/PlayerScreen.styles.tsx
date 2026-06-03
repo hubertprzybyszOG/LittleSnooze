@@ -105,6 +105,9 @@ const styles = StyleSheet.create({
   buttonPressed: {
     opacity: 0.7,
   },
+  buttonDisabled: {
+    opacity: 0.4,
+  },
   buttonText: {
     color: Colors.textOnSelected,
     fontFamily: Fonts.lato.bold,

@@ -3,18 +3,22 @@ import {
   useAudioPlayer,
   useAudioPlayerStatus,
 } from "expo-audio";
-import { useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Pressable, View } from "react-native";
 
 import PatternedScreen from "@/components/PatternedScreen";
 import { ThemedText } from "@/components/themed-text";
-import { addFavoriteSong } from "@/storage/favoriteSongs";
+import { addFavoriteSong, getFavoriteSongs } from "@/storage/favoriteSongs";
 import { AUDIO_TRACKS } from "./PlayerScreen.const";
 import styles from "./PlayerScreen.styles";
 import { formatTime } from "./PlayerScreen.utils";
 
+const MAX_FAVORITE_SONGS = 2;
+
 export default function PlayerScreen() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [favoriteSongsCount, setFavoriteSongsCount] = useState(0);
   const favoriteScale = useRef(new Animated.Value(1)).current;
   const currentTrack = AUDIO_TRACKS[currentTrackIndex];
   const player = useAudioPlayer(AUDIO_TRACKS[0].source, {
@@ -24,12 +28,28 @@ export default function PlayerScreen() {
   const duration = status.duration || 0;
   const progress =
     duration > 0 ? Math.min(status.currentTime / duration, 1) : 0;
+  const isFavoriteLimitReached = favoriteSongsCount >= MAX_FAVORITE_SONGS;
 
   useEffect(() => {
     void setAudioModeAsync({ playsInSilentMode: true });
     player.loop = true;
     player.volume = 0.7;
   }, [player]);
+
+  const loadFavoriteSongsCount = useCallback(async () => {
+    const favoriteSongs = await getFavoriteSongs();
+    setFavoriteSongsCount(favoriteSongs.length);
+  }, []);
+
+  useEffect(() => {
+    void loadFavoriteSongsCount();
+  }, [loadFavoriteSongsCount]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadFavoriteSongsCount();
+    }, [loadFavoriteSongsCount])
+  );
 
   const handlePlay = () => {
     player.play();
@@ -82,12 +102,17 @@ export default function PlayerScreen() {
   };
 
   const handleAddToFavourites = async () => {
+    if (isFavoriteLimitReached) {
+      return;
+    }
+
     animateFavoriteButton();
 
-    await addFavoriteSong({
+    const favoriteSongs = await addFavoriteSong({
       title: currentTrack.title,
       description: currentTrack.description,
     });
+    setFavoriteSongsCount(favoriteSongs.length);
   };
 
   return (
@@ -200,11 +225,14 @@ export default function PlayerScreen() {
           >
             <Pressable
               accessibilityLabel="Add to favourites"
+              accessibilityState={{ disabled: isFavoriteLimitReached }}
+              disabled={isFavoriteLimitReached}
               onPress={() => void handleAddToFavourites()}
               style={({ pressed }) => [
                 styles.button,
                 styles.secondaryButton,
                 pressed && styles.buttonPressed,
+                isFavoriteLimitReached && styles.buttonDisabled,
               ]}
             >
               <ThemedText style={styles.heartIcon}>♥</ThemedText>

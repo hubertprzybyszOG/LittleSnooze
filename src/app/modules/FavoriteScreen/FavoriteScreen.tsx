@@ -1,10 +1,14 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 
 import PatternedScreen from "@/components/PatternedScreen";
 import { ThemedText } from "@/components/themed-text";
-import { type FavoriteSong, getFavoriteSongs } from "@/storage/favoriteSongs";
+import {
+  type FavoriteSong,
+  getFavoriteSongs,
+  removeFavoriteSong,
+} from "@/storage/favoriteSongs";
 import styles from "./FavoriteScreen.styles";
 
 export default function FavoriteScreen() {
@@ -34,12 +38,20 @@ export default function FavoriteScreen() {
     }, [loadFavoriteSongs])
   );
 
+  const handleDeleteSong = async (title: FavoriteSong["title"]) => {
+    try {
+      setErrorMessage(null);
+      const updatedSongs = await removeFavoriteSong(title);
+      setSongs(updatedSongs);
+    } catch {
+      setErrorMessage("Could not delete favorite noise.");
+    }
+  };
+
   return (
     <PatternedScreen safeAreaStyle={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="subtitle" style={styles.title}>
-          Favorite noises
-        </ThemedText>
+        <ThemedText style={styles.description}>Favorite 2 noises...</ThemedText>
 
         {isLoading ? (
           <ThemedText style={styles.emptyText}>Loading favorites...</ThemedText>
@@ -53,10 +65,40 @@ export default function FavoriteScreen() {
           <View style={styles.list}>
             {songs.map((song) => (
               <View key={song.title} style={styles.songCard}>
-                <ThemedText style={styles.songTitle}>{song.title}</ThemedText>
-                <ThemedText style={styles.songDescription}>
-                  {song.description}
-                </ThemedText>
+                <Pressable
+                  accessibilityLabel={`Play ${song.title}`}
+                  onPress={() => undefined}
+                  style={({ pressed }) => [
+                    styles.iconButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <View style={styles.playIcon} />
+                </Pressable>
+
+                <View style={styles.songDetails}>
+                  <ThemedText style={styles.songTitle}>{song.title}</ThemedText>
+                  <ThemedText style={styles.songDescription}>
+                    {song.description}
+                  </ThemedText>
+                </View>
+
+                <Pressable
+                  accessibilityLabel={`Delete ${song.title}`}
+                  onPress={() => void handleDeleteSong(song.title)}
+                  style={({ pressed }) => [
+                    styles.iconButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <View style={styles.deleteIcon}>
+                    <View style={styles.deleteLid} />
+                    <View style={styles.deleteCan}>
+                      <View style={styles.deleteLine} />
+                      <View style={styles.deleteLine} />
+                    </View>
+                  </View>
+                </Pressable>
               </View>
             ))}
           </View>
