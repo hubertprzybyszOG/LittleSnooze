@@ -137,6 +137,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: Colors.text,
   },
+  primaryPauseBar: {
+    backgroundColor: Colors.textOnSelected,
+  },
   previousIcon: {
     flexDirection: "row",
     alignItems: "center",
@@ -176,6 +179,10 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 4,
     backgroundColor: Colors.text,
+  },
+  repeatSymbol: {
+    width: 26,
+    height: 26,
   },
   heartIcon: {
     color: Colors.text,

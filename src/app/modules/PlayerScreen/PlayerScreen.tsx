@@ -4,11 +4,13 @@ import {
   useAudioPlayerStatus,
 } from "expo-audio";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Pressable, View } from "react-native";
 
 import PatternedScreen from "@/components/PatternedScreen";
 import { ThemedText } from "@/components/themed-text";
+import { Colors } from "@/constants/theme";
 import { addFavoriteSong, getFavoriteSongs } from "@/storage/favoriteSongs";
 import { AUDIO_TRACKS } from "./PlayerScreen.const";
 import styles from "./PlayerScreen.styles";
@@ -20,6 +22,7 @@ export default function PlayerScreen() {
   const { trackTitle } = useLocalSearchParams<{ trackTitle?: string }>();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [favoriteSongsCount, setFavoriteSongsCount] = useState(0);
+  const [isRepeating, setIsRepeating] = useState(false);
   const favoriteScale = useMemo(() => new Animated.Value(1), []);
   const lastRequestedTrackTitle = useRef<string | null>(null);
   const currentTrack = AUDIO_TRACKS[currentTrackIndex];
@@ -37,14 +40,14 @@ export default function PlayerScreen() {
   }, []);
 
   useEffect(() => {
-    if (!status.didJustFinish) {
+    if (!status.didJustFinish || !isRepeating) {
       return;
     }
 
     void player.seekTo(0).then(() => {
       player.play();
     });
-  }, [player, status.didJustFinish]);
+  }, [isRepeating, player, status.didJustFinish]);
 
   const loadFavoriteSongsCount = useCallback(async () => {
     const favoriteSongs = await getFavoriteSongs();
@@ -79,11 +82,25 @@ export default function PlayerScreen() {
   );
 
   const handlePlay = () => {
+    if (
+      status.didJustFinish ||
+      (duration > 0 && status.currentTime >= duration)
+    ) {
+      void player.seekTo(0).then(() => {
+        player.play();
+      });
+      return;
+    }
+
     player.play();
   };
 
   const handlePause = () => {
     player.pause();
+  };
+
+  const handleToggleRepeat = () => {
+    setIsRepeating((currentValue) => !currentValue);
   };
 
   const handleStop = () => {
@@ -186,8 +203,8 @@ export default function PlayerScreen() {
             </Pressable>
 
             <Pressable
-              accessibilityLabel="Play"
-              onPress={handlePlay}
+              accessibilityLabel={status.playing ? "Pause" : "Play"}
+              onPress={status.playing ? handlePause : handlePlay}
               style={({ pressed }) => [
                 styles.button,
                 styles.playButton,
@@ -195,7 +212,14 @@ export default function PlayerScreen() {
                 pressed && styles.buttonPressed,
               ]}
             >
-              <View style={styles.playIcon} />
+              {status.playing ? (
+                <View style={styles.pauseIcon}>
+                  <View style={[styles.pauseBar, styles.primaryPauseBar]} />
+                  <View style={[styles.pauseBar, styles.primaryPauseBar]} />
+                </View>
+              ) : (
+                <View style={styles.playIcon} />
+              )}
             </Pressable>
 
             <Pressable
@@ -217,18 +241,24 @@ export default function PlayerScreen() {
 
         <View style={styles.buttonStack}>
           <Pressable
-            accessibilityLabel="Pause"
-            onPress={handlePause}
+            accessibilityLabel={
+              isRepeating ? "Disable repeat" : "Enable repeat"
+            }
+            accessibilityState={{ selected: isRepeating }}
+            onPress={handleToggleRepeat}
             style={({ pressed }) => [
               styles.button,
-              styles.secondaryButton,
+              isRepeating ? styles.primaryButton : styles.secondaryButton,
               pressed && styles.buttonPressed,
             ]}
           >
-            <View style={styles.pauseIcon}>
-              <View style={styles.pauseBar} />
-              <View style={styles.pauseBar} />
-            </View>
+            <SymbolView
+              name={{ ios: "repeat", android: "repeat", web: "repeat" }}
+              size={26}
+              weight="bold"
+              tintColor={isRepeating ? Colors.textOnSelected : Colors.text}
+              style={styles.repeatSymbol}
+            />
           </Pressable>
 
           <Pressable
